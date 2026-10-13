@@ -1,13 +1,18 @@
-# RESPONSE
+# RESPONSE — THE WORLD IS SILENT
 
-Free browser-based Phaser 3 prototype for a dystopian idle exploration game.
+Free Phaser 3 browser-based dystopian isometric idle/life-survival game prototype.
 
-## Play
-Once GitHub Pages is enabled (Settings → Pages → Build and deployment → GitHub Actions):
-https://pck9880.github.io/RESPONSE/
+**Playtest:** https://pck9880.github.io/RESPONSE/
 
-## Development
-- `index.html`: Phaser 3 portrait prototype, modular isometric platform / terminal / player, dialogue choice buttons, local browser save.
-- `.github/workflows/pages.yml`: deploys static site to GitHub Pages on every push to `main`.
+## Current build
+- Phase 003: 12×5 abandoned subway-car isometric scene with 11 independently loadable transparent PNG assets under `assets/pixel/`.
+- Existing choice buttons (`주변 살피기`, `휴대폰 확인`, `일어나기`) and legacy `response_save_v1` localStorage retained.
+- Tap car facilities for preview descriptions. Detailed survival mechanics are *planned*, not currently playable.
+- `assets/layout.json`: asset dimensions/anchors and planned waypoints.
+- `docs/DEVELOPMENT_STATE.md`: **source of truth for planned systems and development continuity**. Read first when resuming in another chat.
 
-Phaser is loaded from an online CDN. Browser localStorage is per device; this build does not include cloud saves.
+## Deploy
+Push to `main` triggers `.github/workflows/pages.yml` (GitHub Pages). Phaser loaded from a CDN.
+
+## License
+Prototype art/assets were created for the RESPONSE project. Third-party Phaser retains its own license.

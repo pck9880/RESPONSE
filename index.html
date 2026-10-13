@@ -1,54 +1,155 @@
-<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"><title>RESPONSE — DAY 1</title><style>*{box-sizing:border-box}html,body{margin:0;background:#000;color:#d5e4e9;font-family:monospace;height:100%;overflow:hidden}#game{height:100dvh;width:100vw;display:flex;justify-content:center;align-items:center}canvas{display:block;image-rendering:pixelated;max-height:100%;max-width:100%}#hint{position:absolute;bottom:4px;color:#65747b;font-size:9px;pointer-events:none}</style></head><body><div id="game"></div><div id="hint">RESPONSE // PROTOTYPE 001</div><script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>RESPONSE — TRAIN CAR / PLAYTEST</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#dce6e9;font-family:monospace}
+#game{width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+canvas{display:block;max-width:100%;max-height:100%;image-rendering:pixelated}
+#notice{position:absolute;bottom:2px;width:100%;text-align:center;font:8px monospace;color:#607a81;pointer-events:none}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:#7ab7c2;font:12px monospace;background:#000}
+</style>
+</head>
+<body>
+<div id="game"></div><div id="loading">RESPONSE // LOADING ASSETS...</div><div id="notice">20XX · SURVIVAL PROTOTYPE · GRAPHICS PHASE 003</div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+<script>
 (()=>{
-const W=360,H=640;const P={bg:0x000000,side:0x121c27,stone:0x344451,top:0x455461,trim:0x596676,cyan:0x65bacb,purple:0x8f63c0,rust:0x765346,cream:0xe3ded2,dark:0x101721,amber:0xb0a06d};
-const initial={step:0,look:false,phone:false,up:false,signal:false,hp:72};let state={...initial};try{state={...state,...JSON.parse(localStorage.getItem('response_save_v1')||'{}')}}catch(e){}
-function save(){try{localStorage.setItem('response_save_v1',JSON.stringify(state))}catch(e){}}
-class Game extends Phaser.Scene{constructor(){super('Game')}create(){this.cameras.main.setBackgroundColor('#000000');this.g=this.add.graphics();this.objects=[];this.createAssets();this.drawModularMap();this.title=this.add.text(15,8,'RESPONSE',{fontFamily:'monospace',fontSize:'16px',color:'#cadfe6',fontStyle:'bold'});this.add.text(302,12,'DAY 1',{fontFamily:'monospace',fontSize:'9px',color:'#9badb7'});this.add.rectangle(180,527,356,223,0x0a1119).setStrokeStyle(2,0x52616c);this.add.rectangle(180,452,342,66,0x111d29).setStrokeStyle(1,0x3d5c64);this.add.text(17,417,'[SYSTEM LOG]  23:41',{fontFamily:'monospace',fontSize:'10px',color:'#66b6c5'});this.message=this.add.text(19,440,'',{fontFamily:'monospace',fontSize:'11px',color:'#dae0e3',wordWrap:{width:322},lineSpacing:4});this.add.rectangle(180,401,342,24,0x111922).setStrokeStyle(1,0x354657);this.status=this.add.text(18,394,'',{fontFamily:'monospace',fontSize:'10px',color:'#b3c2cd'});this.buttons=[];['주변 살피기','휴대폰 확인','일어나기'].forEach((label,i)=>{let y=499+i*45;let box=this.add.rectangle(180,y,334,38,0x1a2934).setStrokeStyle(1,0x627889).setInteractive({useHandCursor:true});let txt=this.add.text(29,y-8,'0'+(i+1)+'   '+label,{fontFamily:'monospace',fontSize:'13px',color:'#e0e7ea'});this.add.text(316,y-9,'›',{fontSize:'16px',color:'#7cc7d0'});box.on('pointerdown',()=>this.act(i));this.buttons.push([box,txt]);});this.drawPlayer();this.refresh();}
-
-makeAsset(key,w,h,draw){const tex=this.textures.createCanvas(key,w,h);const c=tex.getContext();c.imageSmoothingEnabled=false;draw(c);tex.refresh()}
-createAssets(){
-const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
-const D=(c,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(25,0);c.lineTo(49,12);c.lineTo(25,24);c.lineTo(1,12);c.closePath();c.fill()};
-for(let k=0;k<3;k++)this.makeAsset('floor'+k,50,25,c=>{D(c,['#384956','#303e4a','#45525d'][k]);R(c,8,10,12,1,'#53606b');R(c,24,5,7,1,'#66717a');R(c,34,15,6,1,'#27353d');});
-this.makeAsset('bench',38,31,c=>{R(c,7,10,25,5,'#835b4b');R(c,8,7,23,2,'#b17d60');R(c,7,19,26,6,'#6f5347');R(c,10,25,3,5,'#252833');R(c,29,25,3,5,'#252833');R(c,6,12,3,9,'#343e44');R(c,33,12,3,9,'#343e44')});
-this.makeAsset('terminal',26,47,c=>{R(c,4,4,18,33,'#4e5e65');R(c,7,8,12,13,'#182e3f');R(c,8,9,10,11,'#71d5e1');R(c,9,10,8,3,'#c8faff');R(c,8,26,9,2,'#a184cb');R(c,8,31,11,2,'#263039');R(c,8,37,4,10,'#283038');R(c,16,37,4,10,'#283038')});
-this.makeAsset('lamp',38,9,c=>{R(c,0,2,38,6,'#566774');R(c,3,3,32,3,'#e0eaf0');R(c,5,4,28,1,'#ffffff')});
-this.makeAsset('poster',20,30,c=>{R(c,1,1,18,28,'#364255');R(c,3,3,14,24,'#795b9e');R(c,5,6,10,3,'#c5a2d1');R(c,5,12,8,2,'#b28ebd');R(c,5,17,10,2,'#b28ebd')});
-this.makeAsset('rubble',24,12,c=>{R(c,2,7,6,4,'#5d676d');R(c,8,5,7,6,'#71767b');R(c,16,8,5,3,'#736255')});
-this.makeAsset('sign',48,17,c=>{R(c,0,0,48,17,'#1b293f');R(c,2,2,44,13,'#314e68');R(c,5,5,36,2,'#b7d3d8');R(c,5,10,22,2,'#a0c8d2')});
-this.makeAsset('window',50,38,c=>{R(c,0,0,50,38,'#485967');R(c,3,3,44,32,'#243948');R(c,5,5,40,28,'#527389');R(c,10,7,8,10,'#1b2b39');R(c,28,14,11,13,'#172734');R(c,24,3,3,32,'#2b3c48');R(c,3,18,44,3,'#293745');R(c,5,33,40,3,'#765444')});
-this.makeAsset('person',22,39,c=>{R(c,6,2,10,5,'#1c2029');R(c,7,7,8,9,'#cba78b');R(c,5,16,12,13,'#e0ded3');R(c,10,16,2,13,'#26232c');R(c,6,29,4,8,'#1e2530');R(c,13,29,4,8,'#1e2530');R(c,4,18,2,9,'#e0ded3');R(c,17,18,2,9,'#e0ded3')});
+'use strict';
+const W=360,H=640;
+const SAVE='response_save_v1';
+const initial={step:0,look:false,phone:false,up:false,signal:false,hp:72};
+let state={...initial};
+try{state={...state,...JSON.parse(localStorage.getItem(SAVE)||'{}')}}catch(e){}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(state))}catch(e){}}
+const TEXT={
+ start:'눈을 떴을 때, 지하철 객차엔 아무도 없었다.\n희미한 형광등만 불규칙하게 깜박인다.',
+ look:'잠긴 출입문과 파손된 창문.\n객차 한쪽에서 낡은 라디오가 보인다.',
+ phone:'휴대폰: 23:41 / 배터리 18%\n통신 불가. 저장된 메모를 확인할 수 있다.',
+ up:'비틀거리며 몸을 일으켰다.\n머리가 아프다. 이곳에서 버텨야 한다.'
+};
+const ASSETS=['floor_clean','floor_worn','floor_rust','floor_wet','sleep_bed','living_reading_corner','repair_workbench','kitchen_purifier','hvac_heater','window_cracked','door_locked'];
+const SITES={
+ sleep_bed:{name:'임시 침대',desc:'수면 공간. 상태 관리는 후속 단계에서 적용합니다.'},
+ living_reading_corner:{name:'독서·휴식 공간',desc:'책과 라디오. 자동 생활 행동은 후속 단계에서 연결합니다.'},
+ repair_workbench:{name:'작업대',desc:'공구와 부품. 시설 수리는 후속 단계에서 적용합니다.'},
+ kitchen_purifier:{name:'조리·정수 공간',desc:'음식과 식수 설비. 소비 기능은 후속 단계에서 적용합니다.'},
+ hvac_heater:{name:'난방·환기 설비',desc:'객차 온도 조절은 후속 단계에서 적용합니다.'},
+ window_cracked:{name:'파손된 창문',desc:'외부는 어둡고 조용합니다.'},
+ door_locked:{name:'잠긴 출입문',desc:'열리지 않습니다. 객차 밖 이동은 불가능합니다.'}
+};
+class Car extends Phaser.Scene{
+ constructor(){super('Car');this.message=null;this.selected=null;this.layout=null;}
+ preload(){
+  this.load.setPath('assets/pixel/');
+  ASSETS.forEach(key=>this.load.image(key,key+'.png'));
+  this.load.on('loaderror',file=>{console.error('Asset unavailable:',file.key);});
+ }
+ create(){
+  const loading=document.getElementById('loading'); if(loading)loading.remove();
+  this.cameras.main.setBackgroundColor('#000000');
+  this.drawCar();this.drawCharacter();this.createUI();this.refresh();
+  this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>this.input.removeAllListeners());
+ }
+ p(x,y,z=0){return{x:110+(x-y)*19,y:157+(x+y)*9.5-z};}
+ image(id,x,y,scale=.35,originY=1,depthOffset=0,hit=false){
+  const q=this.p(x,y);if(!this.textures.exists(id))return null;
+  const sp=this.add.image(Math.round(q.x),Math.round(q.y),id)
+   .setOrigin(.5,originY).setScale(scale).setDepth(q.y+depthOffset);
+  if(hit&&SITES[id]){
+   sp.setInteractive({useHandCursor:true,pixelPerfect:false});
+   sp.on('pointerdown',()=>this.inspect(id));
+  }
+  return sp;
+ }
+ drawCar(){
+  const shadow=this.add.graphics().setDepth(-10);
+  shadow.fillStyle(0x10202a,.63);shadow.fillEllipse(183,255,334,141);
+  shadow.lineStyle(1,0x23343d,.65);
+  for(let x=0;x<12;x++)for(let y=0;y<5;y++){
+   const q=this.p(x,y);const edge=y===2;
+   const id=(x+y)%13===0?'floor_wet':(x+2*y)%5===0?'floor_rust':(x+3*y)%4===0?'floor_worn':'floor_clean';
+   const tile=this.add.image(Math.round(q.x),Math.round(q.y),id)
+    .setOrigin(.5,.5).setScale(.31).setDepth(q.y-140);
+   if(edge){tile.setTint(0x9cabb1);}
+  }
+  // Back window panels and locked end doors are structural background objects.
+  [2,5,8].forEach(x=>this.image('window_cracked',x,.2,.34,1,-32,true));
+  this.image('door_locked',0,.1,.32,1,-20,true);
+  this.image('door_locked',11,.1,.32,1,-20,true);
+  // Fixed 12x5 layout, Y=2 is the uninterrupted central movement aisle.
+  this.image('sleep_bed',2,1.4,.35,1,10,true);
+  this.image('living_reading_corner',5,1.4,.33,1,10,true);
+  this.image('repair_workbench',8.5,1.4,.34,1,10,true);
+  this.image('hvac_heater',10.5,3.6,.3,1,11,true);
+  this.image('kitchen_purifier',4.1,3.8,.34,1,11,true);
+  const border=this.add.graphics().setDepth(350);
+  border.lineStyle(2,0x45545c,.9);
+  const frontA=this.p(0,4.85),frontB=this.p(11.8,4.85);
+  border.lineBetween(frontA.x,frontA.y+7,frontB.x,frontB.y+7);
+  this.add.text(180,336,'CAR 01   //   CENTRAL AISLE: OPEN',{
+   fontFamily:'monospace',fontSize:'8px',color:'#587985'
+  }).setOrigin(.5).setDepth(360);
+ }
+ drawCharacter(){
+  const pos=this.p(3.3,2);
+  this.player=this.add.container(Math.round(pos.x),Math.round(pos.y-3)).setDepth(pos.y+18);
+  const g=this.add.graphics();
+  g.fillStyle(0x07121c,.7);g.fillEllipse(0,15,18,6);
+  g.fillStyle(0x1b2332);g.fillRect(-5,6,4,10);g.fillRect(2,6,4,10);
+  g.fillStyle(0xe0ddd3);g.fillRect(-7,-13,14,20);
+  g.fillStyle(0x23222c);g.fillTriangle(-1,-11,3,-11,1,3);
+  g.fillStyle(0xcfa789);g.fillRect(-5,-24,10,11);
+  g.fillStyle(0x1b202a);g.fillRect(-6,-26,12,5);g.fillRect(-7,-23,4,4);
+  g.fillStyle(0xe0ddd3);g.fillRect(-10,-8,3,11);g.fillRect(7,-8,3,11);
+  this.player.add(g);
+  if(state.up)this.player.y-=5;
+ }
+ createUI(){
+  this.add.text(14,8,'RESPONSE',{fontFamily:'monospace',fontSize:'17px',fontStyle:'bold',color:'#e0e8e9'}).setDepth(1200);
+  this.add.text(346,11,'20XX / DAY 001',{fontFamily:'monospace',fontSize:'9px',color:'#98bac5'}).setOrigin(1,0).setDepth(1200);
+  this.add.rectangle(180,527,356,224,0x0c151e).setStrokeStyle(2,0x3d545f).setDepth(1000);
+  this.add.rectangle(180,454,339,65,0x15202a).setStrokeStyle(1,0x405966).setDepth(1001);
+  this.add.text(16,415,'[SYSTEM LOG]  23:41',{fontFamily:'monospace',fontSize:'10px',color:'#7ec4d1'}).setDepth(1002);
+  this.stat=this.add.text(17,394,'',{fontFamily:'monospace',fontSize:'10px',color:'#b8ccd3'}).setDepth(1002);
+  this.log=this.add.text(20,439,'',{fontFamily:'monospace',fontSize:'11px',color:'#dbe6e8',wordWrap:{width:320},lineSpacing:4}).setDepth(1002);
+  this.buttons=[];
+  ['주변 살피기','휴대폰 확인','일어나기'].forEach((label,i)=>{
+   const y=502+i*45;
+   const bg=this.add.rectangle(180,y,330,37,0x1b2b38).setStrokeStyle(1,0x59727a).setDepth(1005).setInteractive({useHandCursor:true});
+   const txt=this.add.text(30,y-7,'0'+(i+1)+'   '+label,{fontFamily:'monospace',fontSize:'12px',color:'#e2edef'}).setDepth(1006);
+   this.add.text(319,y-8,'›',{fontSize:'15px',color:'#72c0cf'}).setDepth(1006);
+   bg.on('pointerdown',()=>this.action(i));
+   this.buttons.push([bg,txt]);
+  });
+  this.add.text(343,374,'GRAPHICS TEST 003',{fontFamily:'monospace',fontSize:'9px',color:'#748d98'}).setOrigin(1,0).setDepth(1002);
+ }
+ inspect(id){this.selected=id;const s=SITES[id];this.message=s.name+'\n'+s.desc;this.refresh();}
+ action(i){
+  this.selected=null;
+  if(i===0){state.look=true;state.step=Math.max(state.step,1);this.message=TEXT.look;}
+  if(i===1){state.phone=true;state.step=Math.max(state.step,2);this.message=TEXT.phone;}
+  if(i===2){state.up=true;state.step=Math.max(state.step,3);this.message=TEXT.up;if(!this.stood){this.player.y-=5;this.stood=true;}}
+  save();this.refresh();
+ }
+ refresh(){
+  this.stat.setText('HP '+state.hp+'/100    BATTERY 18%    SIGNAL LOST');
+  this.log.setText(this.message || (state.step===0?TEXT.start:'객차를 둘러본다. 아직 주위는 조용하다.'));
+  [state.look,state.phone,state.up].forEach((done,i)=>{this.buttons[i][0].setFillStyle(done?0x1e3c3e:0x1b2b38);this.buttons[i][1].setColor(done?'#88b8b8':'#e2edef');});
+ }
 }
-drawModularMap(){
-this.g.clear();this.g.fillStyle(0x09111a,0.55);this.g.fillEllipse(180,305,323,102);
-for(let x=0;x<7;x++)for(let y=0;y<6;y++){const p=this.iso(x+0.5,y+0.5);this.add.image(Math.round(p.x),Math.round(p.y),'floor'+(x+y)%3).setDepth(10+x+y);}
-for(let x=0;x<7;x++){const p=this.iso(x,6),q=this.iso(x+1,6);this.line(p.x,p.y+3,q.x,q.y+3,0xb59e55,3)}
-for(let x=0;x<7;x++)for(let y=6;y<8;y++){let p=this.iso(x,y);this.poly([[p.x,p.y],[p.x+25,p.y+12],[p.x,p.y+24],[p.x-25,p.y+12]],0x151c29);if(y===7){this.line(p.x-18,p.y+8,p.x+15,p.y+24,0x566577,2);this.line(p.x-20,p.y+13,p.x+14,p.y+29,0x465663,2)}}
-for(let x=0;x<7;x++)this.cube(x,0,0,1,.42,78,0x30414a);for(let y=0;y<5;y++)this.cube(0,y,0,.35,1,43,0x34434a);
-this.cube(1,1,0,.6,.65,57,0x6a7374);this.cube(5,1,0,.62,.62,45,0x4a5d64);
-for(let x=2;x<5;x++){this.cube(x,1.5,0,.72,.55,8,0x465b67);this.cube(x,1.5,9,.72,.18,15,0x415463)}
-for(let i=0;i<4;i++)this.cube(.35,.55+i*.3,2+i*3,1,.25,3,0x62727b);
-const obj=(key,x,y,z=0,depth=150)=>{const p=this.iso(x,y,z);return this.add.image(Math.round(p.x),Math.round(p.y),key).setOrigin(.5,1).setDepth(depth)};
-obj('bench',3.1,1.7,0,110);obj('terminal',5.3,3.4,0,160);obj('poster',1,.55,40,230);
-obj('window',4.7,.6,40,220);obj('sign',2,.45,69,240);obj('lamp',3,.5,80,250);obj('lamp',5,.45,78,250).setTint(0xc29af1);
-for(let i=0;i<12;i++){let x=1+(i*7%53)/12,y=1+(i*11%47)/13;obj('rubble',x,y,0,45+x+y)}
+window.addEventListener('error',e=>{const el=document.getElementById('loading');if(el)el.textContent='RESPONSE // LOAD ERROR: '+e.message;});
+if(typeof Phaser==='undefined'){
+ document.getElementById('loading').textContent='NETWORK ERROR // PHASER CDN UNAVAILABLE';
+ return;
 }
-iso(x,y,z=0){return {x:180+(x-y)*25,y:177+(x+y)*12.5-z}}
-poly(points,color,alpha=1){this.g.fillStyle(color,alpha);this.g.fillPoints(points.map(a=>new Phaser.Geom.Point(a[0],a[1])),true)}
-line(x1,y1,x2,y2,col=0x273847,w=1){this.g.lineStyle(w,col);this.g.lineBetween(x1,y1,x2,y2)}
-tile(x,y,t=0){const a=this.iso(x,y),b=this.iso(x+1,y),c=this.iso(x+1,y+1),d=this.iso(x,y+1);this.poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],(x+y)%4===0?0x3a4854:(x+y)%3===0?0x2d3c48:0x33424e);this.line(a.x,a.y,b.x,b.y,0x26343f);this.line(a.x,a.y,d.x,d.y,0x26343f);if((x*7+y*11)%9===0){this.line(a.x+5,a.y+4,c.x-5,c.y-4,0x54616a)}}
-cube(x,y,z,width,depth,height,color){const a=this.iso(x,y,z),b=this.iso(x+width,y,z),c=this.iso(x+width,y+depth,z),d=this.iso(x,y+depth,z),aa=this.iso(x,y,z-height),bb=this.iso(x+width,y,z-height),cc=this.iso(x+width,y+depth,z-height),dd=this.iso(x,y+depth,z-height);this.poly([[d.x,d.y],[c.x,c.y],[cc.x,cc.y],[dd.x,dd.y]],0x192632);this.poly([[b.x,b.y],[c.x,c.y],[cc.x,cc.y],[bb.x,bb.y]],0x25323b);this.poly([[aa.x,aa.y],[bb.x,bb.y],[cc.x,cc.y],[dd.x,dd.y]],color);return {a:aa,b:bb,c:cc,d:dd}}
-drawMap(){this.g.clear();this.g.fillStyle(0x080e17,0.5);this.g.fillEllipse(183,306,324,100);for(let x=0;x<7;x++)for(let y=0;y<6;y++)this.tile(x,y);for(let x=0;x<7;x++){const p=this.iso(x,6),q=this.iso(x+1,6);this.line(p.x,p.y+3,q.x,q.y+3,0xb59e55,3)}for(let x=0;x<7;x++)for(let y=6;y<8;y++){const p=this.iso(x,y);this.poly([[p.x,p.y],[p.x+25,p.y+12],[p.x,p.y+24],[p.x-25,p.y+12]],0x141e2b);if(y===7){this.line(p.x-18,p.y+8,p.x+15,p.y+24,0x566577,2);this.line(p.x-20,p.y+13,p.x+14,p.y+29,0x465663,2)}}
-for(let x=0;x<7;x++)this.cube(x,0,0,1,.42,78,0x2c3c49);for(let y=0;y<5;y++)this.cube(0,y,0,.35,1,43,0x34434a);
-this.cube(1,1,0,.6,.65,57,0x6a7374);this.cube(5,1,0,.62,.62,45,0x4a5d64);
-this.cube(2,.4,65,2,.15,12,0x192d3b);let lamp=this.iso(3,.4,78);this.g.fillStyle(P.cyan);this.g.fillRect(lamp.x-17,lamp.y-2,34,3);this.g.fillStyle(P.purple);this.g.fillRect(lamp.x+30,lamp.y+8,22,3);
-for(let x=2;x<5;x++){this.cube(x,1.5,0,.72,.55,8,0x465b67);this.cube(x,1.5,9,.72,.18,15,0x415463)}
-this.cube(5,3,0,.9,.75,37,0x56606b);let p=this.iso(5.45,3.7,27);this.g.fillStyle(0x83c5cd);this.g.fillRect(p.x-6,p.y-2,12,10);this.g.fillStyle(P.purple);this.g.fillRect(p.x-3,p.y+14,6,3);
-for(let i=0;i<4;i++){this.cube(.35,.55+i*.3,2+i*3,1,.25,3,0x62727b)}
-for(let i=0;i<24;i++){let x=(i*11)%7,y=(i*7)%6,p=this.iso(x+.25,y+.35);this.g.fillStyle(i%5===0?0x736258:0x647079);this.g.fillRect(p.x+(i%3)*3,p.y,2+i%3,2)}
-}
-drawPlayer(){let p=this.iso(3.4,3.3),x=Math.round(p.x),y=Math.round(p.y-10);this.player=this.add.container(x,y);let s=this.add.graphics();s.fillStyle(0x070d14,.7);s.fillEllipse(0,14,17,6);s.fillStyle(0x171b24);s.fillRect(-5,4,4,11);s.fillRect(2,4,4,11);s.fillStyle(0xe0ddd0);s.fillRect(-7,-13,14,18);s.fillStyle(0x27232b);s.fillTriangle(-1,-12,3,-12,1,0);s.fillStyle(0xd1a88c);s.fillRect(-5,-23,10,10);s.fillStyle(0x1b202a);s.fillRect(-6,-25,12,5);s.fillRect(-7,-22,4,4);s.fillStyle(0xe0ddd0);s.fillRect(-10,-8,3,11);s.fillRect(7,-8,3,11);this.player.add(s)}
-act(i){if(i===0){state.look=true;state.step=Math.max(state.step,1);this.text='깨진 전광판과 비어 있는 승강장.\n먼 곳의 단말기에서 희미한 빛이 샌다.'}else if(i===1){state.phone=true;state.step=Math.max(state.step,2);this.text='휴대폰: 23:41 / 배터리 18%\n통신 불가. 저장된 메모는 확인할 수 있다.'}else{state.up=true;state.step=Math.max(state.step,3);this.text='비틀거리며 몸을 일으켰다.\n머리가 아프다. 관리실을 찾아야 한다.';this.player.y-=5;}save();this.refresh()}
-refresh(){this.status.setText('HP '+state.hp+'/100     BATTERY 18%     SIGNAL LOST');this.message.setText(this.text||(state.step===0?'눈을 떴을 때, 지하철역엔 아무도 없었다.\n형광등만 불규칙하게 깜박인다.':'기록을 확인했다. 아직 주변은 고요하다.'));this.buttons.forEach(([b,t],i)=>{const done=[state.look,state.phone,state.up][i];b.setFillStyle(done?0x1b373a:0x1a2934);t.setColor(done?'#7bafad':'#e0e7ea')})}}
-new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#000000',pixelArt:true,roundPixels:true,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Game]});})();
-</script></body></html>
+new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,pixelArt:true,roundPixels:true,
+ backgroundColor:'#000000',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Car]});
+})();
+</script>
+</body>
+</html>
