@@ -4,6 +4,35 @@ const W=360,H=640;const P={bg:0x000000,side:0x121c27,stone:0x344451,top:0x455461
 const initial={step:0,look:false,phone:false,up:false,signal:false,hp:72};let state={...initial};try{state={...state,...JSON.parse(localStorage.getItem('response_save_v1')||'{}')}}catch(e){}
 function save(){try{localStorage.setItem('response_save_v1',JSON.stringify(state))}catch(e){}}
 class Game extends Phaser.Scene{constructor(){super('Game')}create(){this.cameras.main.setBackgroundColor('#000000');this.g=this.add.graphics();this.objects=[];this.drawMap();this.title=this.add.text(15,8,'RESPONSE',{fontFamily:'monospace',fontSize:'16px',color:'#cadfe6',fontStyle:'bold'});this.add.text(302,12,'DAY 1',{fontFamily:'monospace',fontSize:'9px',color:'#9badb7'});this.add.rectangle(180,527,356,223,0x0a1119).setStrokeStyle(2,0x52616c);this.add.rectangle(180,452,342,66,0x111d29).setStrokeStyle(1,0x3d5c64);this.add.text(17,417,'[SYSTEM LOG]  23:41',{fontFamily:'monospace',fontSize:'10px',color:'#66b6c5'});this.message=this.add.text(19,440,'',{fontFamily:'monospace',fontSize:'11px',color:'#dae0e3',wordWrap:{width:322},lineSpacing:4});this.add.rectangle(180,401,342,24,0x111922).setStrokeStyle(1,0x354657);this.status=this.add.text(18,394,'',{fontFamily:'monospace',fontSize:'10px',color:'#b3c2cd'});this.buttons=[];['주변 살피기','휴대폰 확인','일어나기'].forEach((label,i)=>{let y=499+i*45;let box=this.add.rectangle(180,y,334,38,0x1a2934).setStrokeStyle(1,0x627889).setInteractive({useHandCursor:true});let txt=this.add.text(29,y-8,'0'+(i+1)+'   '+label,{fontFamily:'monospace',fontSize:'13px',color:'#e0e7ea'});this.add.text(316,y-9,'›',{fontSize:'16px',color:'#7cc7d0'});box.on('pointerdown',()=>this.act(i));this.buttons.push([box,txt]);});this.drawPlayer();this.refresh();}
+
+makeAsset(key,w,h,draw){const tex=this.textures.createCanvas(key,w,h);const c=tex.getContext();c.imageSmoothingEnabled=false;draw(c);tex.refresh()}
+createAssets(){
+const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+const D=(c,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(25,0);c.lineTo(49,12);c.lineTo(25,24);c.lineTo(1,12);c.closePath();c.fill()};
+for(let k=0;k<3;k++)this.makeAsset('floor'+k,50,25,c=>{D(c,['#384956','#303e4a','#45525d'][k]);R(c,8,10,12,1,'#53606b');R(c,24,5,7,1,'#66717a');R(c,34,15,6,1,'#27353d');});
+this.makeAsset('bench',38,31,c=>{R(c,7,10,25,5,'#835b4b');R(c,8,7,23,2,'#b17d60');R(c,7,19,26,6,'#6f5347');R(c,10,25,3,5,'#252833');R(c,29,25,3,5,'#252833');R(c,6,12,3,9,'#343e44');R(c,33,12,3,9,'#343e44')});
+this.makeAsset('terminal',26,47,c=>{R(c,4,4,18,33,'#4e5e65');R(c,7,8,12,13,'#182e3f');R(c,8,9,10,11,'#71d5e1');R(c,9,10,8,3,'#c8faff');R(c,8,26,9,2,'#a184cb');R(c,8,31,11,2,'#263039');R(c,8,37,4,10,'#283038');R(c,16,37,4,10,'#283038')});
+this.makeAsset('lamp',38,9,c=>{R(c,0,2,38,6,'#566774');R(c,3,3,32,3,'#e0eaf0');R(c,5,4,28,1,'#ffffff')});
+this.makeAsset('poster',20,30,c=>{R(c,1,1,18,28,'#364255');R(c,3,3,14,24,'#795b9e');R(c,5,6,10,3,'#c5a2d1');R(c,5,12,8,2,'#b28ebd');R(c,5,17,10,2,'#b28ebd')});
+this.makeAsset('rubble',24,12,c=>{R(c,2,7,6,4,'#5d676d');R(c,8,5,7,6,'#71767b');R(c,16,8,5,3,'#736255')});
+this.makeAsset('sign',48,17,c=>{R(c,0,0,48,17,'#1b293f');R(c,2,2,44,13,'#314e68');R(c,5,5,36,2,'#b7d3d8');R(c,5,10,22,2,'#a0c8d2')});
+this.makeAsset('window',50,38,c=>{R(c,0,0,50,38,'#485967');R(c,3,3,44,32,'#243948');R(c,5,5,40,28,'#527389');R(c,10,7,8,10,'#1b2b39');R(c,28,14,11,13,'#172734');R(c,24,3,3,32,'#2b3c48');R(c,3,18,44,3,'#293745');R(c,5,33,40,3,'#765444')});
+this.makeAsset('person',22,39,c=>{R(c,6,2,10,5,'#1c2029');R(c,7,7,8,9,'#cba78b');R(c,5,16,12,13,'#e0ded3');R(c,10,16,2,13,'#26232c');R(c,6,29,4,8,'#1e2530');R(c,13,29,4,8,'#1e2530');R(c,4,18,2,9,'#e0ded3');R(c,17,18,2,9,'#e0ded3')});
+}
+drawModularMap(){
+this.g.clear();this.g.fillStyle(0x09111a,0.55);this.g.fillEllipse(180,305,323,102);
+for(let x=0;x<7;x++)for(let y=0;y<6;y++){const p=this.iso(x+0.5,y+0.5);this.add.image(Math.round(p.x),Math.round(p.y),'floor'+(x+y)%3).setDepth(10+x+y);}
+for(let x=0;x<7;x++){const p=this.iso(x,6),q=this.iso(x+1,6);this.line(p.x,p.y+3,q.x,q.y+3,0xb59e55,3)}
+for(let x=0;x<7;x++)for(let y=6;y<8;y++){let p=this.iso(x,y);this.poly([[p.x,p.y],[p.x+25,p.y+12],[p.x,p.y+24],[p.x-25,p.y+12]],0x151c29);if(y===7){this.line(p.x-18,p.y+8,p.x+15,p.y+24,0x566577,2);this.line(p.x-20,p.y+13,p.x+14,p.y+29,0x465663,2)}}
+for(let x=0;x<7;x++)this.cube(x,0,0,1,.42,78,0x30414a);for(let y=0;y<5;y++)this.cube(0,y,0,.35,1,43,0x34434a);
+this.cube(1,1,0,.6,.65,57,0x6a7374);this.cube(5,1,0,.62,.62,45,0x4a5d64);
+for(let x=2;x<5;x++){this.cube(x,1.5,0,.72,.55,8,0x465b67);this.cube(x,1.5,9,.72,.18,15,0x415463)}
+for(let i=0;i<4;i++)this.cube(.35,.55+i*.3,2+i*3,1,.25,3,0x62727b);
+const obj=(key,x,y,z=0,depth=150)=>{const p=this.iso(x,y,z);return this.add.image(Math.round(p.x),Math.round(p.y),key).setOrigin(.5,1).setDepth(depth)};
+obj('bench',3.1,1.7,0,110);obj('terminal',5.3,3.4,0,160);obj('poster',1,.55,40,230);
+obj('window',4.7,.6,40,220);obj('sign',2,.45,69,240);obj('lamp',3,.5,80,250);obj('lamp',5,.45,78,250).setTint(0xc29af1);
+for(let i=0;i<12;i++){let x=1+(i*7%53)/12,y=1+(i*11%47)/13;obj('rubble',x,y,0,45+x+y)}
+}
 iso(x,y,z=0){return {x:180+(x-y)*25,y:177+(x+y)*12.5-z}}
 poly(points,color,alpha=1){this.g.fillStyle(color,alpha);this.g.fillPoints(points.map(a=>new Phaser.Geom.Point(a[0],a[1])),true)}
 line(x1,y1,x2,y2,col=0x273847,w=1){this.g.lineStyle(w,col);this.g.lineBetween(x1,y1,x2,y2)}
