@@ -11,11 +11,11 @@
 #oldview{margin-top:6px;display:flex;align-items:center;justify-content:space-between;color:#667e86;font-size:9px}
 #oldview a{color:#81b4c2;text-decoration:underline}
 @media(max-width:420px){#legacyLog{font-size:10px}#legacyActions button{font-size:10px;min-height:36px}#oldview{font-size:8px}}
-</style></head><body><div id="shell"><header><div><div class="logo">RESPONSE</div><div class="sub">TRAIN CAR 01 // SURVIVAL VIEW</div></div><div class="clock"><span id="day">20XX · 생존 001일차</span><small><span id="clock">23:41</span> / <span id="phase">야간</span> · SIGNAL LOST</small></div></header><section id="stage" aria-label="360도 회전 가능한 지하철 객차 3D 화면"><canvas id="view" aria-label="드래그하여 회전하고 두 손가락으로 확대 축소"></canvas><div id="overlay"><div id="tag">CAR 01 / 12×5 GRID<br>ORBIT CAMERA ACTIVE<br><span id="npctxt">NPC · WAITING</span></div><div id="compass"><span id="deg">045°</span> / AZIMUTH<br><span id="zoom">160%</span> / ZOOM<br><span id="pitch">42°</span> / ELEVATION</div><div id="tip"><span id="desktophelp">드래그: 360° 회전 · 휠: 확대/축소 · Shift+드래그: 시점 이동</span><span id="mobilehelp">한 손가락: 회전 · 두 손가락: 확대/축소 및 이동</span><br>주인공 직접 이동 불가 · 30초 후 자율 생활</div><div id="focus">+</div><div id="inspect"><div class="title" id="inspecttitle"></div><div class="hint" id="inspectbody"></div></div></div></section><div id="bottom"><div id="statusline"><span>CAMERA <b id="live">360° READY · FIX 005</b> · <span id="health">HP 72/100</span></span><span id="npcaction">주인공: 대기 중</span><span id="mood">정신 안정 70</span></div><div id="legacy"><div id="legacyLog" aria-live="polite">객차에 눈을 떴다. 신호가 잡히지 않는다.</div><div id="legacyActions"><button id="actLook" type="button">01 주변 살피기</button><button id="actPhone" type="button">02 휴대폰 확인</button><button id="actUp" type="button">03 일어나기</button></div></div><div id="controls"><button class="nav" id="left" title="왼쪽 구역 보기">◀</button><button class="nav" id="minus" title="축소">−</button><button class="wide reset" id="reset">시점 초기화</button><button class="nav" id="plus" title="확대">+</button><button class="nav" id="right" title="오른쪽 구역 보기">▶</button><button class="wide" id="autodemo" title="자동 생활 시연">생활 시연</button></div><div id="oldview"><a href="classic-phaser.html">이전 Phaser 화면 보기</a><span> · 인벤토리/생존 기능은 후속 구현</span></div></div></div>
+</style></head><body><div id="shell"><header><div><div class="logo">RESPONSE</div><div class="sub">TRAIN CAR 01 // SURVIVAL VIEW</div></div><div class="clock"><span id="day">20XX · 생존 001일차</span><small><span id="clock">23:41</span> / <span id="phase">야간</span> · SIGNAL LOST</small></div></header><section id="stage" aria-label="360도 회전 가능한 지하철 객차 3D 화면"><canvas id="view" aria-label="드래그하여 회전하고 두 손가락으로 확대 축소"></canvas><div id="overlay"><div id="tag">CAR 01 / 12×5 GRID<br>ORBIT CAMERA ACTIVE<br><span id="npctxt">NPC · WAITING</span></div><div id="compass"><span id="deg">045°</span> / AZIMUTH<br><span id="zoom">160%</span> / ZOOM<br><span id="pitch">42°</span> / ELEVATION</div><div id="tip"><span id="desktophelp">드래그: 360° 회전 · 휠: 확대/축소 · Shift+드래그: 시점 이동</span><span id="mobilehelp">한 손가락: 회전 · 두 손가락: 확대/축소 및 이동</span><br>주인공 직접 이동 불가 · 30초 후 자율 생활</div><div id="focus">+</div><div id="inspect"><div class="title" id="inspecttitle"></div><div class="hint" id="inspectbody"></div></div></div></section><div id="bottom"><div id="statusline"><span>CAMERA <b id="live">360° READY · UNIFIED 006</b> · <span id="health">HP 72/100</span></span><span id="npcaction">주인공: 대기 중</span><span id="mood">정신 안정 70</span></div><div id="legacy"><div id="legacyLog" aria-live="polite">객차에 눈을 떴다. 신호가 잡히지 않는다.</div><div id="legacyActions"><button id="actLook" type="button">01 주변 살피기</button><button id="actPhone" type="button">02 휴대폰 확인</button><button id="actUp" type="button">03 일어나기</button></div></div><div id="controls"><button class="nav" id="left" title="왼쪽 구역 보기">◀</button><button class="nav" id="minus" title="축소">−</button><button class="wide reset" id="reset">시점 초기화</button><button class="nav" id="plus" title="확대">+</button><button class="nav" id="right" title="오른쪽 구역 보기">▶</button><button class="wide" id="autodemo" title="자동 생활 시연">생활 시연</button></div><div id="oldview"><a href="classic-phaser.html">이전 Phaser 화면 보기</a><span> · 인벤토리/생존 기능은 후속 구현</span></div></div></div>
 <script>
 (()=>{'use strict';
 const artNames=['sleep_bed','living_reading_corner','repair_workbench','kitchen_purifier','hvac_heater'];
-const artImages={};for(const key of artNames){const im=new Image();im.src='assets/pixel/'+key+'.png';artImages[key]=im;}
+// Source pixel-art assets are retained on GitHub. All view angles render one coherent 3D mesh, never flat PNG overlays.
 const canvas=document.getElementById('view'),ctx=canvas.getContext('2d',{alpha:false});
 window.addEventListener('error',e=>{const el=document.getElementById('live');if(el)el.textContent='ERROR · '+String(e.message||'unknown').slice(0,65)});
 window.addEventListener('unhandledrejection',e=>{const el=document.getElementById('live');if(el)el.textContent='ERROR · '+String(e.reason||'promise').slice(0,65)});
@@ -23,7 +23,7 @@ const STAGE=document.getElementById('stage'), D=id=>document.getElementById(id);
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));const lerp=(a,b,t)=>a+(b-a)*t;
 const color=(h,delta=0)=>{let v=parseInt(h.replace('#',''),16);let a=[(v>>16)&255,(v>>8)&255,v&255].map(n=>clamp(Math.round(n+delta),0,255));return `rgb(${a.join(',')})`};
 const C={metal:'#36434f',edge:'#111820',floor:'#37414a',blue:'#203d57',glass:'#152c45',rust:'#785340',wood:'#675140',olive:'#566149',white:'#bac1b8',light:'#dda971',signal:'#65aabe'};
-let polys=[],locations=[],camera={yaw:Math.PI*.17,pitch:.73,zoom:1.20,focusX:0,focusZ:0},renderInfo={w:0,h:0,scale:20},time=23*3600+41*60,day=1,lastTime=0,lastRender=0,pointers=new Map(),pointerStart=null,dragMoved=false,inspectTimer=0,mood=70,autoWait=0,autoMode=false;
+let polys=[],locations=[],camera={yaw:Math.PI*.17,pitch:.73,zoom:1.02,focusX:0,focusZ:0},renderInfo={w:0,h:0,scale:20},time=23*3600+41*60,day=1,lastTime=0,lastRender=0,pointers=new Map(),pointerStart=null,dragMoved=false,inspectTimer=0,mood=70,autoWait=0,autoMode=false;
 const camVec=()=>[Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.sin(camera.pitch),Math.cos(camera.yaw)*Math.cos(camera.pitch)];
 const mat=(fill,opts={})=>({fill,noise:opts.noise||0,glow:opts.glow||0,alpha:opts.alpha??1});
 const addFace=(v,normal,material,group='',tag='')=>polys.push({v,normal,m:typeof material==='string'?mat(material):material,group,tag});
@@ -142,8 +142,8 @@ function build(){polys=[];locations=[];
  for(let n=0;n<4;n++)box(4.45,.57+n*.14,1.882,.64,.06,.018,mat('#d88448',{glow:.85}),'','난방기');
  for(let i=segStart;i<polys.length;i++)polys[i].spriteProxy='hvac_heater';
  // small foreground crates, leaving center aisle clear
- clutter(-3.72,1.83);clutter(2.95,1.95,1);clutter(3.60,1.95);
- box(-.40,.32,1.72,.88,.61,.61,'#4b554d','','보급함');
+ // Remove foreground clutter from the 12×5 carriage walking aisle.
+ // Keep central passage clear: this supply crate formerly obstructed character navigation.
  // Metal lanterns and localized warm atmosphere
  const lamp=(x,z)=>{box(x,.70,z,.28,.11,.28,'#5a4a34');box(x,.99,z,.24,.43,.24,mat('#d4a25d',{glow:.8}));box(x,1.24,z,.33,.08,.32,'#7a6a54')};
  lamp(-3.35,-1.12);lamp(1.10,-1.10);lamp(4.98,-1.90);
@@ -234,7 +234,7 @@ function npcUpdate(dt){character.animTime+=dt; if(!autoMode){autoWait+=dt;if(aut
  }
  D('npctxt').textContent='NPC · '+(autoMode?'AUTO LIFESTYLE':'STANDBY');D('npcaction').textContent='주인공: '+character.action;D('mood').textContent='정신 안정 '+Math.floor(mood);
 }
-let width=600,height=370,dpi=1;function resize(){const rect=STAGE.getBoundingClientRect();dpi=clamp(window.devicePixelRatio||1,1,2);width=Math.max(200,Math.floor(rect.width/Math.max(1.15,dpi)));height=Math.max(180,Math.floor(rect.height/Math.max(1.15,dpi)));width=Math.min(width,940);height=Math.min(height,600);canvas.width=width;canvas.height=height;renderInfo.w=width;renderInfo.h=height;renderInfo.scale=Math.min(width/15.8,height/10.3)*camera.zoom;ctx.imageSmoothingEnabled=false;}
+let width=600,height=370,dpi=1;function resize(){const rect=STAGE.getBoundingClientRect();dpi=clamp(window.devicePixelRatio||1,1,2);width=Math.max(200,Math.floor(rect.width/Math.max(1.15,dpi)*.84));height=Math.max(180,Math.floor(rect.height/Math.max(1.15,dpi)*.84));width=Math.min(width,940);height=Math.min(height,600);canvas.width=width;canvas.height=height;renderInfo.w=width;renderInfo.h=height;renderInfo.scale=Math.min(width/17.8,height/10.9)*camera.zoom;ctx.imageSmoothingEnabled=false;}
 window.addEventListener('resize',resize);resize();
 function project(v){const yaw=camera.yaw,p=camera.pitch,dx=v[0]-camera.focusX,dz=v[2]-camera.focusZ;return {x:width*.5+(dx*Math.cos(yaw)-dz*Math.sin(yaw))*renderInfo.scale,y:height*.55-(v[1]*Math.cos(p)-(dx*Math.sin(yaw)+dz*Math.cos(yaw))*Math.sin(p))*renderInfo.scale,depth:dx*Math.sin(yaw)*Math.cos(p)+dz*Math.cos(yaw)*Math.cos(p)+v[1]*Math.sin(p)};}
 function wallAlpha(group){const s=Math.sin(camera.yaw),c=Math.cos(camera.yaw);if(group==='frontWall')return clamp((.18-c)*3.2,0,1);if(group==='backWall')return clamp((.18+c)*3.2,0,1);if(group==='rightWall')return clamp((.18-s)*3.2,0,1);if(group==='leftWall')return clamp((.18+s)*3.2,0,1);return 1;}
@@ -246,21 +246,21 @@ let frame=0;function paint(){frame++;resizeIfNeeded();renderInfo.scale=Math.min(
  // Sparse atmospheric pixels, stays pure dark around train.
  for(let i=0;i<34;i++){let x=(i*1759+11)%width,y=(i*107+37)%height;ctx.fillStyle=i%3?'#0b151b':'#132129';ctx.fillRect(x,y,1,1)}
  const vec=camVec();let queue=[];actorPolysStart=polys.length;renderCharacter();
- const spriteAngle=Math.atan2(Math.sin(camera.yaw-Math.PI*.17),Math.cos(camera.yaw-Math.PI*.17));
- const spriteOpacity=clamp((.92-Math.abs(spriteAngle))/.43,0,1);
- const sprites=[['sleep_bed',-4.73,-1.46,2.48,2.16],['living_reading_corner',-2.30,-1.64,2.23,2.15],['repair_workbench',2.05,-1.58,2.57,2.48],['kitchen_purifier',4.61,-1.48,2.31,2.36],['hvac_heater',4.38,1.4,1.43,1.88]];
+ // Unified 3D mesh renderer; sprites are source art reference, not camera-facing overlays.
  for(let i=0;i<polys.length;i++){
- let p=polys[i],wa=wallAlpha(p.group),n=p.normal;let facing=n[0]*vec[0]+n[1]*vec[1]+n[2]*vec[2];if(facing<-.001)continue;
- let points=p.v.map(project);let depth=points.reduce((sum,a)=>sum+a.depth,0)/points.length;
- queue.push({points,depth,m:p.m,normal:n,alpha:wa*p.m.alpha*(p.spriteProxy?1-spriteOpacity:1),tag:p.tag});
+  const p=polys[i],wa=wallAlpha(p.group),n=p.normal;
+  const facing=n[0]*vec[0]+n[1]*vec[1]+n[2]*vec[2];
+  if(facing<-.001)continue;
+  const points=p.v.map(project);
+  const depth=points.reduce((sum,a)=>sum+a.depth,0)/points.length;
+  queue.push({points,depth,m:p.m,normal:n,alpha:wa*p.m.alpha,tag:p.tag});
  }
- for(const [name,x,z,w,h] of sprites){const im=artImages[name];if(!spriteOpacity||!im?.complete||!im.naturalWidth)continue;const proj=project([x,0,z]);queue.push({isSprite:true,img:im,depth:proj.depth,px:proj.x,py:proj.y,pw:w*renderInfo.scale,ph:h*renderInfo.scale,alpha:spriteOpacity});}
- queue.sort((a,b)=>a.depth-b.depth);for(const q of queue){if(!q.isSprite)drawPoly(q,vec,frame);}
- // Orthographic PNG concept details are shown only near the source viewing angle; all sides have actual 3D proxies.
- for(const q of queue.filter(p=>p.isSprite).sort((a,b)=>a.depth-b.depth)){ctx.save();ctx.globalAlpha=q.alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(q.img,Math.round(q.px-q.pw/2),Math.round(q.py-q.ph),Math.round(q.pw),Math.round(q.ph));ctx.restore();}polys.splice(actorPolysStart);
+ queue.sort((a,b)=>a.depth-b.depth);
+ for(const q of queue)drawPoly(q,vec,frame);
+ polys.splice(actorPolysStart);
  ctx.fillStyle='#6c8791';ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText('CAR 01 // ISOLATED // LIVE CAMERA',width/2,height-12);
 }
-function resizeIfNeeded(){const r=STAGE.getBoundingClientRect();let ww=Math.max(200,Math.min(940,Math.floor(r.width/Math.max(1.15,clamp(window.devicePixelRatio||1,1,2))))),hh=Math.max(180,Math.min(600,Math.floor(r.height/Math.max(1.15,clamp(window.devicePixelRatio||1,1,2)))));if(ww!==width||hh!==height)resize();}
+function resizeIfNeeded(){const r=STAGE.getBoundingClientRect();let ww=Math.max(200,Math.min(940,Math.floor(r.width/Math.max(1.15,clamp(window.devicePixelRatio||1,1,2))*.84))),hh=Math.max(180,Math.min(600,Math.floor(r.height/Math.max(1.15,clamp(window.devicePixelRatio||1,1,2))*.84)));if(ww!==width||hh!==height)resize();}
 function refreshHUD(){let hours=Math.floor(time/3600)%24,min=Math.floor(time/60)%60;D('clock').textContent=String(hours).padStart(2,'0')+':'+String(min).padStart(2,'0');D('day').textContent='20XX · 생존 '+String(day).padStart(3,'0')+'일차';D('phase').textContent=hours>=6&&hours<18?'주간':'야간';D('deg').textContent=String(((Math.round(camera.yaw*180/Math.PI)%360)+360)%360).padStart(3,'0')+'°';D('zoom').textContent=Math.round(camera.zoom*100)+'%';D('pitch').textContent=Math.round(camera.pitch*180/Math.PI)+'°';}
 function tick(ts){const dt=lastTime?clamp((ts-lastTime)/1000,0,.07):0;lastTime=ts;
  if(!document.hidden){time+=dt*36;while(time>=86400){time-=86400;day++;}npcUpdate(dt);paint();refreshHUD();}
